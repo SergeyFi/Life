@@ -5,11 +5,11 @@
 
 void UCGCube::GenerateCells()
 {
-	for (auto X = 0; X < 2; ++X)
+	for (auto X = 0; X < SizeX; ++X)
 	{
-		for (auto Y = 0; Y < 2; ++Y)
+		for (auto Y = 0; Y < SizeY; ++Y)
 		{
-			for (auto Z = 0; Z < 2; ++Z)
+			for (auto Z = 0; Z < SizeZ; ++Z)
 			{
 				GetCellByPosition(FPosition{X, Y, Z} + Size / 2)->bAlive = true;
 			}

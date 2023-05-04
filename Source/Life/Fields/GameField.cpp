@@ -19,25 +19,17 @@ void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (CellBehaviorClass)
-	{
-		CreateCells();
+	if (!CheckStartupSettings()) return;
 
-		CellBehavior = NewObject<UCellBehavior>(this, CellBehaviorClass);
+	CreateCells();
 
-		CellBehavior->Init(&Cells, Size);
+	CreateCellBehavior();
 
-		if (CellGenerator)
-		{
-			CellGenerator->Init(&Cells, Size);
-			CellGenerator->GenerateCells();
-		}
+	CreateCellGenerator();
 
-		RenderCells();
+	RenderCells();
 
-		FTimerHandle SimStartTimer;
-		GetWorld()->GetTimerManager().SetTimer(SimStartTimer, this, &AGameField::StartSimulation, PrimaryActorTick.TickInterval, false, PrimaryActorTick.TickInterval);
-	}
+	DelayedStart();
 }
 
 FCell* AGameField::GetCellByPosition(FPosition Position)
@@ -141,6 +133,36 @@ void AGameField::ApplyBehavior()
 		
 		++CurrentStep;
 	}
+}
+
+void AGameField::CreateCellGenerator()
+{
+	if (!CellGenerator && CellGeneratorClass)
+	{
+		CellGenerator = NewObject<UCellGenerator>(this, CellGeneratorClass);
+	}
+
+	CellGenerator->Init(&Cells, Size);
+	CellGenerator->GenerateCells();
+}
+
+void AGameField::CreateCellBehavior()
+{
+	CellBehavior = NewObject<UCellBehavior>(this, CellBehaviorClass);
+
+	CellBehavior->Init(&Cells, Size);
+}
+
+bool AGameField::CheckStartupSettings()
+{
+	return CellBehaviorClass && Size > 0 && DimensionScale > 0 && CellGeneratorClass;
+}
+
+void AGameField::DelayedStart()
+{
+	FTimerHandle SimStartTimer;
+	GetWorld()->GetTimerManager().SetTimer
+	(SimStartTimer, this, &AGameField::StartSimulation, PrimaryActorTick.TickInterval, false, PrimaryActorTick.TickInterval);
 }
 
 // Called every frame

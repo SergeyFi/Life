@@ -39,6 +39,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Field")
 	bool bStepMode;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Field")
+	TSubclassOf<UCellGenerator> CellGeneratorClass;
+
 	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Field")
 	UCellGenerator* CellGenerator;
 
@@ -69,4 +72,12 @@ private:
 	void CalcFriends();
 
 	void ApplyBehavior();
+
+	void CreateCellGenerator();
+
+	void CreateCellBehavior();
+
+	bool CheckStartupSettings();
+
+	void DelayedStart();
 };

@@ -17,4 +17,15 @@ class LIFE_API UCGCube : public UCellGenerator
 public:
 
 	virtual void GenerateCells() override;
+
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Cube")
+	int32 SizeX = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Cube")
+	int32 SizeY = 2;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Cube")
+	int32 SizeZ = 2;
 };
