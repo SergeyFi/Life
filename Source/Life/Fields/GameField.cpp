@@ -59,21 +59,21 @@ void AGameField::RenderCells()
 	
 	for (auto& Cell : Cells)
 	{
-		if (Cell.bAlive)
+		if (Cell.bAlive && Cell.FriendsVon != 6)
 		{
 			FTransform CellTransform;
 			CellTransform.SetLocation
 			({Cell.Position.X * DimensionScale, Cell.Position.Y * DimensionScale, Cell.Position.Z * DimensionScale});
 		
-			Cell.RenderID = CellAvatars->AddInstance(CellTransform);
+			CellAvatars->AddInstance(CellTransform);
 		}
 	}
 }
 
-int32 AGameField::GetFriendsCount(FCell& Cell)
+void AGameField::AssignFriendsCount(FCell& Cell)
 {
-	int32 Friends = 0;
-
+	Cell.Friends = 0;
+	
 	for (auto X : {-1, 0, 1})
 	{
 		for (auto Y : {-1, 0, 1})
@@ -84,7 +84,7 @@ int32 AGameField::GetFriendsCount(FCell& Cell)
 
 				if (FriendCell && FriendCell->bAlive)
 				{
-					Friends++;
+					Cell.Friends += 1;
 				}
 			}
 		}
@@ -92,10 +92,19 @@ int32 AGameField::GetFriendsCount(FCell& Cell)
 
 	if (Cell.bAlive)
 	{
-		Friends -= 1;
+		Cell.Friends -= 1;
 	}
-	
-	return Friends;
+
+	Cell.FriendsVon = 0;
+	for (auto Pos : {FPosition{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}})
+	{
+		auto FriendCell = GetCellByPosition(Cell.Position + Pos);
+
+		if (FriendCell && FriendCell->bAlive)
+		{
+			Cell.FriendsVon += 1;
+		}
+	}
 }
 
 void AGameField::StartSimulation()
@@ -107,7 +116,7 @@ void AGameField::CalcFriends()
 {
 	for (auto& Cell : Cells)
 	{
-		Cell.Friends = GetFriendsCount(Cell);
+		AssignFriendsCount(Cell);
 	}
 }
 
@@ -117,7 +126,6 @@ void AGameField::ApplyBehavior()
 	{
 		for (auto& Cell : Cells)
 		{
-			Cell.Blocked = false;
 			CellBehavior->ApplyBehavior(Cell);
 		}
 	}
@@ -128,7 +136,6 @@ void AGameField::ApplyBehavior()
 			CurrentStep = 0;
 		}
 		
-		Cells[CurrentStep].Blocked = false;
 		CellBehavior->ApplyBehavior(Cells[CurrentStep]);
 		
 		++CurrentStep;
@@ -142,8 +149,11 @@ void AGameField::CreateCellGenerator()
 		CellGenerator = NewObject<UCellGenerator>(this, CellGeneratorClass);
 	}
 
-	CellGenerator->Init(&Cells, Size);
-	CellGenerator->GenerateCells();
+	if (CellGenerator)
+	{
+		CellGenerator->Init(&Cells, Size);
+		CellGenerator->GenerateCells();
+	}
 }
 
 void AGameField::CreateCellBehavior()

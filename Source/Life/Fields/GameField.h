@@ -65,7 +65,7 @@ private:
 
 	void RenderCells();
 
-	int32 GetFriendsCount(FCell& Cell);
+	void AssignFriendsCount(FCell& Cell);
 
 	void StartSimulation();
 

@@ -40,7 +40,6 @@ struct FCell
 
  FPosition Position;
  bool bAlive = false;
- bool Blocked = false;
- int32 RenderID = -1;
  int32 Friends = 0;
+ int32 FriendsVon = 0;
 };
